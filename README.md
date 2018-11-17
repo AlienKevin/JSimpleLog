@@ -1,4 +1,4 @@
-# JSimpleLog
+# JSimpleLog (unstable, underdevelopment)
 jSimpleLog is a friendly and structured logging API for Java. It has the capacity to easily filter log messages that you don't want to appear on your console to help you focus on the parts that really matter. You can assign type to a group of logging commands and categorize multiple types to form a category.
 
 ## Usage
