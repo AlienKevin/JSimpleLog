@@ -7,47 +7,85 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-public class Log {
-	private boolean isLogging = true;
+public class JSimpleLog {
+	private boolean isLogging = true;// all logging default to be ON
 	private String form = null;
-	private Stack<String> previousForm = new Stack<>();
+	private Stack<String> previousForms = new Stack<>();
 	private Map<String, Boolean> canFormsLog = new HashMap<>();
 	private Map<String, List<String>> categories = new HashMap<>();
 
-	public Log() {
+	public JSimpleLog() {
 		// do nothing
 	}
 
 	public void out(String message) {
-		Boolean logFilter = false;// default to off
-		if (isCategory(form)) {// current form is category
-			Boolean canCategoryLog = canFormsLog.get(form);
-			if (canCategoryLog != null) {
-				logFilter = canCategoryLog;
+		if (isLogging) {
+			Boolean logFilter = false;// default to off
+			if (isCategory(form)) {// current form is CATEGORY
+				logFilter = handleCategories();
+			} else {// current form is TYPE
+				// handle categories of a type
+				Boolean canCategoriesLog = checkCategoryLog();
+				// type has a high precedence than category in determining logging behavior
+				Boolean canTypeLog = checkTypeLog();
+				if (canCategoriesLog == null && canTypeLog == null) {
+					logFilter = true; // only depends on isLogging
+				} else if (canCategoriesLog == null) {// categories are unspecified
+					logFilter = canTypeLog;// only depends on type
+				} else if (canTypeLog == null) {// type is unspecified
+					logFilter = canCategoriesLog;// only depends on categories
+				} else {
+					logFilter = canTypeLog;//type dominates categories
+				}
 			}
-		} else {// current form is type
-			List<String> categories = getCategories(this.form);
-			if (categories.size() > 0) {// current type belongs to at least one category
-				for (String category : categories) {
-					if (canFormsLog.get(category) == true) {
-						logFilter = true;
-						break;
+			// System.out.println("logFilter: " + logFilter);
+			if (logFilter) {
+				console(message);
+			}
+		}
+	}
+
+	private boolean handleCategories() {
+		Boolean canCategoryLog = canFormsLog.get(form);
+		if (canCategoryLog != null) {
+			return canCategoryLog;
+		}
+		return true;
+	}
+
+	private Boolean checkTypeLog() {
+		if (this.form != null) {// current type is defined
+			Boolean canTypeLog = canFormsLog.get(this.form);
+			if (canTypeLog != null) {
+				return canTypeLog;
+			} else {
+				return null;// depends on category's setting
+			}
+		} else {// no type is specified
+			return true;
+		}
+	}
+
+	private Boolean checkCategoryLog() {
+		List<String> categories = getCategories(this.form);
+		if (categories.size() > 0) {// current type belongs to at least one category
+			boolean allCategoriesNull = true;
+			for (String category : categories) {
+				Boolean canLog = canFormsLog.get(category);
+				if (canLog != null) {
+					allCategoriesNull = false;
+					if (canLog == true) {
+						return true;
 					}
 				}
 			}
-			//type has a high precedence than category in determining logging behavior
-			if (this.form != null) {// current type is defined
-				Boolean canTypeLog = canFormsLog.get(this.form);
-				if (canTypeLog != null) {
-					logFilter = canTypeLog;
-				}
-			} else {// no type is specified
-				logFilter = true;
+			if (allCategoriesNull) {
+				return true;
 			}
+		} else {// current type belongs to no categories
+			return null;
 		}
-		if (logFilter && isLogging) {
-			console(message);
-		}
+		return false;
 	}
 
 	public void console(String message) {
@@ -67,7 +105,7 @@ public class Log {
 	public void off() {
 		isLogging = false;
 	}
-	
+
 	/**
 	 * Set logging behavior for a specific form (type/category)
 	 * 
@@ -79,25 +117,23 @@ public class Log {
 	public void setFormLog(String form, boolean isLogging) {
 		canFormsLog.put(standardizeFormInput(form), isLogging);
 	}
-	
+
 	public String getForm() {
 		return this.form;
 	}
-	
+
 	private void setForm(String form) {
 		this.form = standardizeFormInput(form);
-		this.previousForm.push(this.form);
+		this.previousForms.push(this.form);
 	}
 
 	public void reset() {
-		if (previousForm.size() > 1) {
-			this.previousForm.pop();
-			this.form = this.previousForm.pop();
-		} else {
-			this.form = null;
+		if (previousForms.size() > 1) {
+			this.previousForms.pop();
+			this.form = this.previousForms.peek();
 		}
 	}
-	
+
 	/**
 	 * Set the type of the logger from now on
 	 * 
@@ -117,7 +153,7 @@ public class Log {
 	public void setCategory(String category) {
 		setForm(category);
 	}
-	
+
 	/**
 	 * Categorize one or more types to a category
 	 * 
