@@ -3,12 +3,13 @@ package logging;
 public class LogTester {
 	public static JSimpleLog log = new JSimpleLog();
 	public static void main(String[] args) {
-		log.setFormLog("foo1", true);
+//		log.setFormLog("foo1", true);
 		log.setFormLog("foo2", false);
 		log.categorize("foo", "foo1", "foo2");
 		log.categorize("methods", "foo1", "foo2");
 		log.setFormLog("methods", false);
-		log.setFormLog("foo", false);
+		log.setFormLog("foo", true);
+		log.setFormLog(JSimpleLog.UNSPECIFIED, false);
 		foo1();
 		foo2();
 		foo3();

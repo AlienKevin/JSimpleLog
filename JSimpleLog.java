@@ -9,6 +9,8 @@ import java.util.Stack;
 
 public class JSimpleLog {
 	private boolean isLogging = true;// all logging default to be ON
+	private boolean unspecifiedFormsLog = true;// all unspecified forms' logging default to be ON
+	public static String UNSPECIFIED = "unspecified";
 	private String form = null;
 	private Stack<String> previousForms = new Stack<>();
 	private Map<String, Boolean> canFormsLog = new HashMap<>();
@@ -29,13 +31,13 @@ public class JSimpleLog {
 				// type has a high precedence than category in determining logging behavior
 				Boolean canTypeLog = checkTypeLog();
 				if (canCategoriesLog == null && canTypeLog == null) {
-					logFilter = true; // only depends on isLogging
+					logFilter = unspecifiedFormsLog; // depends on isLogging and allFormsLog
 				} else if (canCategoriesLog == null) {// categories are unspecified
 					logFilter = canTypeLog;// only depends on type
 				} else if (canTypeLog == null) {// type is unspecified
 					logFilter = canCategoriesLog;// only depends on categories
 				} else {
-					logFilter = canTypeLog;//type dominates categories
+					logFilter = canTypeLog;// type dominates categories
 				}
 			}
 			// System.out.println("logFilter: " + logFilter);
@@ -59,10 +61,10 @@ public class JSimpleLog {
 			if (canTypeLog != null) {
 				return canTypeLog;
 			} else {
-				return null;// depends on category's setting
+				return null;// current type's logging behavior is not specified
 			}
 		} else {// no type is specified
-			return true;
+			return null;
 		}
 	}
 
@@ -79,8 +81,9 @@ public class JSimpleLog {
 					}
 				}
 			}
-			if (allCategoriesNull) {
-				return true;
+			if (allCategoriesNull) {// current type's categories' logging behaviors
+									// are not specified
+				return null;
 			}
 		} else {// current type belongs to no categories
 			return null;
@@ -115,7 +118,11 @@ public class JSimpleLog {
 	 *            turn on logging or not
 	 */
 	public void setFormLog(String form, boolean isLogging) {
-		canFormsLog.put(standardizeFormInput(form), isLogging);
+		if (form.equalsIgnoreCase(UNSPECIFIED)) {
+			unspecifiedFormsLog = isLogging;
+		} else {
+			canFormsLog.put(standardizeFormInput(form), isLogging);
+		}
 	}
 
 	public String getForm() {
