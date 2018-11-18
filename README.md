@@ -87,5 +87,5 @@ Let's see an example using categorization where two types - "foo1" and "foo2" - 
 ```
 As you can see, `log.setFormLog("type/category name", logOrNot)` is applicable for both *type* and *category*. In fact, in JSimpleLog's lingo, *type* and *category* are types of *form*.
 
-#### License
+## License
 This project is licensed under the terms of the MIT license.
