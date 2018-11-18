@@ -1,8 +1,9 @@
 # JSimpleLog
-jSimpleLog is a friendly and structured logging API for Java. It has the capacity to easily filter log messages that you don't want to appear on your console to help you focus on the parts that really matter. You can assign type to a group of logging commands and categorize multiple types to form a category.
+JSimpleLog is a friendly and structured logging API for Java. It has the capacity to easily filter log messages that you don't want to appear on your console to help you focus on the parts that really matter. You can assign type to a group of logging commands and categorize multiple types to form a category.
 
 ## Installation
-Currently, there's no JAR file available. Please add JSimpleLog.java to your project.
+Please download JSimpleLog.jar file from the repository and build that into your classpath.
+If you are using Eclipse IDE, see this link for [how to import jar files](https://stackoverflow.com/questions/3280353/how-to-import-a-jar-in-eclipse).
 
 ## Usage
 ### Simplest use case
