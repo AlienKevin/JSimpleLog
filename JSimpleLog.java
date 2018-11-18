@@ -7,10 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * JSimpleLog is a simple yet structured logging API for Java. You can customize
+ * logging behaviors for individual code blocks and control them in one place.
+ * @see <a href="https://github.com/AlienKevin/jSimpleLog">JSimpleLog tutorial</a> 
+ * @author Kevin Li
+ *
+ */
 public class JSimpleLog {
 	private boolean isLogging = true;// all logging default to be ON
 	private boolean unspecifiedFormsLog = true;// all unspecified forms' logging default to be ON
-	public static String UNSPECIFIED = "unspecified";
+	public static final String UNSPECIFIED = "unspecified";
 	private String form = null;
 	private Stack<String> previousForms = new Stack<>();
 	private Map<String, Boolean> canFormsLog = new HashMap<>();
@@ -20,11 +27,15 @@ public class JSimpleLog {
 		// do nothing
 	}
 
+	/**
+	 * Output log message to console with filters
+	 * @param message the message to output
+	 */
 	public void out(String message) {
 		if (isLogging) {
 			Boolean logFilter = false;// default to off
 			if (isCategory(form)) {// current form is CATEGORY
-				logFilter = handleCategories();
+				logFilter = handleCategory();
 			} else {// current form is TYPE
 				// handle categories of a type
 				Boolean canCategoriesLog = checkCategoryLog();
@@ -46,8 +57,12 @@ public class JSimpleLog {
 			}
 		}
 	}
-
-	private boolean handleCategories() {
+	
+	/**
+	 * Check if current form can log when form is a category
+	 * @return whether the current category can log
+	 */
+	private boolean handleCategory() {
 		Boolean canCategoryLog = canFormsLog.get(form);
 		if (canCategoryLog != null) {
 			return canCategoryLog;
@@ -55,6 +70,11 @@ public class JSimpleLog {
 		return true;
 	}
 
+	/**
+	 * Check if the current form can log according to its <i>type</i>,
+	 * when form is a <i>type</i>
+	 * @return whether the current type can log according to its type
+	 */
 	private Boolean checkTypeLog() {
 		if (this.form != null) {// current type is defined
 			Boolean canTypeLog = canFormsLog.get(this.form);
@@ -68,6 +88,11 @@ public class JSimpleLog {
 		}
 	}
 
+	/**
+	 * Check if the current form can log according the <i>categories</i> it belongs to,
+	 * when form is a <i>type</i>
+	 * @return whether the current type can log according to its category
+	 */
 	private Boolean checkCategoryLog() {
 		List<String> categories = getCategories(this.form);
 		if (categories.size() > 0) {// current type belongs to at least one category
@@ -91,7 +116,11 @@ public class JSimpleLog {
 		return false;
 	}
 
-	public void console(String message) {
+	/**
+	 * Output log message to console
+	 * @param message the message to print
+	 */
+	private void console(String message) {
 		System.out.println(message);
 	}
 
@@ -125,15 +154,31 @@ public class JSimpleLog {
 		}
 	}
 
+	/**
+	 * Retrieve the current form (type/category)
+	 * @return the current form
+	 */
 	public String getForm() {
 		return this.form;
 	}
 
+	/**
+	 * Set the current form to a input, used internally
+	 * by public methods {@link #setType(String) setType} and 
+	 * {@link #setCategory(String) setCategory}. Users should
+	 * always use these two public methods to make their code
+	 * more explicit
+	 * @param form the form to set
+	 */
 	private void setForm(String form) {
 		this.form = standardizeFormInput(form);
 		this.previousForms.push(this.form);
 	}
 
+	/**
+	 * Reset the current form back to previous selected form.
+	 * Usually called before a method returns
+	 */
 	public void reset() {
 		if (previousForms.size() > 1) {
 			this.previousForms.pop();
