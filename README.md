@@ -95,7 +95,7 @@ Let's see an example using categorization where two types - "foo1" and "foo2" - 
     }
 ```
 This code should output:
-```java
+```
 foo1 starts!
 foo1 ends!
 ```
@@ -132,7 +132,7 @@ Here's an example of usage:
     }
 ```
 This code should output:
-```java
+```
 foo1 starts!
 foo1 ends!
 ```
