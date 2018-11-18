@@ -70,22 +70,77 @@ If you want to group multiple related *types*, create a category to manage them 
 Let's see an example using categorization where two types - "foo1" and "foo2" - are categorized under "foo":
 ```java
     public static void main(String[] args){
-        JSimpleLog log = new JSimpleLog();// instantiate logger
-        log.categorize("foo", foo1", "foo2");// categorize types
-        log.setFormLog("foo", false);// set a category's logging behavior
+        // instantiate logger
+        JSimpleLog log = new JSimpleLog();
+        // categorize types under the category "foo"
+        log.categorize("foo", foo1", "foo2");
+        // set a category's logging behavior
+        log.setFormLog("foo", false);
+        //override category setting using more precise type setting
+        log.setFormLog("foo1", true);
     }
     public int foo1(){
         log.setType("foo1");
+        log.out("foo1 starts!");
         //do something
+        log.out("foo1 ends!");
         log.reset();
     }
     public int foo2(){
         log.setType("foo2");
+        log.out("foo2 starts!");
         //do something
+        log.out("foo2 ends!");
         log.reset();
     }
 ```
-As you can see, `log.setFormLog("type/category name", logOrNot)` is applicable for both *type* and *category*. In fact, in JSimpleLog's lingo, *type* and *category* are types of *form*.
+This code should output:
+```java
+foo1 starts!
+foo1 ends!
+```
+As you can see, `log.setFormLog("type/category name", logOrNot)` is applicable for both *type* and *category*. In fact, in JSimpleLog's lingo, *type* and *category* are types of *form*. More importantly, type specific logging behavior will always *override* category's logging behavior. In this example, `log.setFormLog("foo", false)` which disables the logging of type "foo1" and "foo2" is overrided by `log.setFormLog("foo1", true)` which enables the logging of type "foo1". Notice however, "foo2" is still disabled because it has no specific type setting to override its category setting.
+#### 3. Disable logging for all unspecified forms
+Maybe there's sometime when your console screen is clustered with irrelevant log messages and you want to only see the logging messages for several *types*. You can obviously turn off all logging using `off()`, but that will disable the log messages you want to see as well. Another choice is to categorize all *types* under a main *category* and then disable that *category*. Since you can override the *category* setting with individual *type* setting, you can still selectivly *specify* the logging behavior for the *types* you want (turning them on/off). To save you from keeping track of all *types* and writing tediously long log settings every time, JSimpleLog provides a method to do precisely that. To disable all unspecified *forms* (types/categories), call `log.setFormLog(JSimpleLog.UNSPECIFIED, false)`.
+Here's an example of usage:
+```java
+    public static void main(String[] args){
+        // instantiate logger
+        JSimpleLog log = new JSimpleLog();
+        // categorize types
+        log.categorize("foo", foo1", "foo2");
+        // diable logging for all unspecified forms
+        log.setFormLog(JSimpleLog.UNSPECIFIED, false);
+        // enable logging for type "foo1"
+        log.setFormLog("foo1", true);
+    }
+    //same method as last example
+    public int foo1(){
+        log.setType("foo1");
+        log.out("foo1 starts!");
+        //do something
+        log.out("foo1 ends!");
+        log.reset();
+    }
+    //same method as last example
+    public int foo2(){
+        log.setType("foo2");
+        log.out("foo2 starts!");
+        //do something
+        log.out("foo2 ends!");
+        log.reset();
+    }
+```
+This code should output:
+```java
+foo1 starts!
+foo1 ends!
+```
+Even though you set the types for methods `foo1()` and `foo2() ` and categorize type "foo1" and "foo2" under the category "foo", only the logging behavior for type "foo1" is specified. 
+Don't confuse **specification** with form **declaration**. 
+- **Declaration** is when you set the *type* for a code block (using `setType("type name")`) or *categorize* several *types* together to form a *category* (using `categorize("category name", "type 1",...)`). 
+- **Specification** is when you specify the logging behavior of a *type* or *category* (using `setFormLog("type/category name", logOrNot)`)
 
+In this example, both type "foo1" and "foo2" are declared and even categorized. However, only type "foo1" is specified. Since `log.setFormLog(JSimpleLog.UNSPECIFIED, false)` disables logging for all *unspecified* forms, type "foo2" is disabled.
 ## License
 This project is licensed under the terms of the MIT license.
